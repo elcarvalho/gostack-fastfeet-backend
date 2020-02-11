@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+
 import Sequelize, { Model } from 'sequelize';
 
 class User extends Model {
@@ -6,7 +8,7 @@ class User extends Model {
       {
         name: Sequelize.STRING,
         email: Sequelize.STRING,
-        password: Sequelize.STRING,
+        password: Sequelize.VIRTUAL,
         password_hash: Sequelize.STRING,
         is_admin: Sequelize.BOOLEAN,
       },
@@ -14,6 +16,10 @@ class User extends Model {
         sequelize,
       }
     );
+  }
+
+  checkPassword(password) {
+    return bcrypt.compare(password, this.password_hash);
   }
 }
 
