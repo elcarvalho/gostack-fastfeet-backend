@@ -33,6 +33,14 @@ O arquivo src/config/database.js possui as configurações de conexão com o ban
 > yarn sequelize db:migrate
 ```
 
+## Aplicando as seeds
+```
+# Você pode conferir as seeds dentro do diretório src/database/seeds/
+# A partir da raiz execute:
+
+> yarn sequelize db:seed:all
+```
+
 ## Inicie a API em desenvolvimento
 ```
 # Com as dependências baixadas você pode iniciar a API em modo de desenvolvimento executando:
