@@ -19,18 +19,18 @@ de uma transportadora fictícia (Fastfeet).
 O arquivo src/config/database.js possui as configurações de conexão com o banco de dados, fique à vontade para adicionas suas configurações.
 ```
 
-## Aplicando as migrations
-```
-# Execute a partir da raiz do projeto o comando abaixo para aplicar as migrations e configurar o banco de dados da aplicação
-
-> yarn sequelize db:migrate
-```
-
 ## Baixe as dependências
 ```
 # Dentro do repositório clonado execute o comando abaixo para baixar as depedências:
 
 > yarn install
+```
+
+## Aplicando as migrations
+```
+# Execute a partir da raiz do projeto o comando abaixo para aplicar as migrations e configurar o banco de dados da aplicação
+
+> yarn sequelize db:migrate
 ```
 
 ## Inicie a API em desenvolvimento
