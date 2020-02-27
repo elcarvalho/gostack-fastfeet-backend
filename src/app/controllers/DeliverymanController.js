@@ -18,11 +18,13 @@ class DeliveryController {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
       avatar_id: Yup.number(),
-      email: Yup.string().required(),
+      email: Yup.string()
+        .email()
+        .required(),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Validation fails.' });
     }
 
     const { name, avatar_id, email } = req.body;
@@ -33,7 +35,37 @@ class DeliveryController {
   }
 
   async update(req, res) {
-    return res.json({ ok: true });
+    const schema = Yup.object().shape({
+      name: Yup.string(),
+      avatar_id: Yup.number(),
+      email: Yup.string().email(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails.' });
+    }
+
+    const { email: newEmail } = req.body;
+
+    const deliveryman = await Deliveryman.findByPk(req.params.id);
+
+    if (!deliveryman) {
+      return res.status(400).json({ error: 'Deliveryman not exists.' });
+    }
+
+    if (newEmail && newEmail !== deliveryman.email) {
+      const deliverymanExists = await Deliveryman.findOne({
+        where: { email: newEmail },
+      });
+
+      if (deliverymanExists) {
+        return res.status(400).json({ error: 'Deliveryman already exists.' });
+      }
+    }
+
+    const { id, name, email, avatar_id } = await deliveryman.update(req.body);
+
+    return res.json({ id, name, email, avatar_id });
   }
 
   async delete(req, res) {
