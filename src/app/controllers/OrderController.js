@@ -5,9 +5,11 @@ class OrderController {
   async index(req, res) {
     const { deliverymanId } = req.params;
 
-    const query = deliverymanId ? { where: { deliverymanId } } : {};
+    const query = deliverymanId
+      ? { deliverymanId, canceledAt: null }
+      : { canceledAt: null };
 
-    const orders = await Order.findAll(query);
+    const orders = await Order.findAll({ where: query });
 
     return res.json(orders);
   }
