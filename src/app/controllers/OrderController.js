@@ -39,7 +39,22 @@ class OrderController {
   }
 
   async update(req, res) {
-    return res.json({ ok: true });
+    const schema = Yup.object().shape({
+      deliverymanId: Yup.number(),
+      product: Yup.string(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails.' });
+    }
+
+    const { id } = req.params;
+
+    const order = await Order.findByPk(id);
+
+    const { deliverymanId, product } = await order.update(req.body);
+
+    return res.json({ deliverymanId, product });
   }
 
   async delete(req, res) {
