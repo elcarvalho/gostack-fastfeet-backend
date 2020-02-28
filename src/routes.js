@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import authMiddleware from './app/middlewares/auth';
+import adminMiddleware from './app/middlewares/admin';
 
 import SessionController from './app/controllers/SessionController';
 import RecipientController from './app/controllers/RecipientController';
@@ -15,9 +16,13 @@ routes.use(authMiddleware);
 routes.post('/recipients', RecipientController.store);
 routes.put('/recipients/:id', RecipientController.update);
 
-routes.get('/deliverymen', DeliverymanController.index);
-routes.post('/deliverymen', DeliverymanController.store);
-routes.put('/deliverymen/:id', DeliverymanController.update);
-routes.delete('/deliverymen/:id', DeliverymanController.delete);
+routes.get('/deliverymen', adminMiddleware, DeliverymanController.index);
+routes.post('/deliverymen', adminMiddleware, DeliverymanController.store);
+routes.put('/deliverymen/:id', adminMiddleware, DeliverymanController.update);
+routes.delete(
+  '/deliverymen/:id',
+  adminMiddleware,
+  DeliverymanController.delete
+);
 
 export default routes;
