@@ -6,6 +6,7 @@ import adminMiddleware from './app/middlewares/admin';
 import SessionController from './app/controllers/SessionController';
 import RecipientController from './app/controllers/RecipientController';
 import DeliverymanController from './app/controllers/DeliverymanController';
+import OrderController from './app/controllers/OrderController';
 
 const routes = new Router();
 
@@ -24,5 +25,10 @@ routes.delete(
   adminMiddleware,
   DeliverymanController.delete
 );
+
+routes.get('/orders/:deliverymanId?', adminMiddleware, OrderController.index);
+routes.post('/orders', adminMiddleware, OrderController.store);
+routes.put('/orders/:id', adminMiddleware, OrderController.update);
+routes.delete('/orders/:id', adminMiddleware, OrderController.delete);
 
 export default routes;
