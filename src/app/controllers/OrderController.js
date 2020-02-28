@@ -3,13 +3,20 @@ import Order from '../models/Order';
 
 class OrderController {
   async index(req, res) {
-    const { deliverymanId } = req.params;
+    const { page = 1 } = req.query;
 
-    const query = deliverymanId
-      ? { deliverymanId, canceledAt: null }
-      : { canceledAt: null };
-
-    const orders = await Order.findAll({ where: query });
+    const orders = await Order.findAll({
+      attributes: [
+        'recipientId',
+        'deliverymanId',
+        'product',
+        'canceledAt',
+        'startDate',
+        'endDate',
+      ],
+      limit: 20,
+      offset: (page - 1) * 20,
+    });
 
     return res.json(orders);
   }

@@ -26,7 +26,7 @@ routes.delete(
   DeliverymanController.delete
 );
 
-routes.get('/orders/:deliverymanId?', adminMiddleware, OrderController.index);
+routes.get('/orders/', adminMiddleware, OrderController.index);
 routes.post('/orders', adminMiddleware, OrderController.store);
 routes.put('/orders/:id', adminMiddleware, OrderController.update);
 routes.delete('/orders/:id', adminMiddleware, OrderController.delete);
