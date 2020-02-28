@@ -8,6 +8,7 @@ import RecipientController from './app/controllers/RecipientController';
 import DeliverymanController from './app/controllers/DeliverymanController';
 import OrderController from './app/controllers/OrderController';
 import DeliverymanOrderController from './app/controllers/DeliverymanOrderController';
+import OrderStatusController from './app/controllers/OrderStatusController';
 
 const routes = new Router();
 
@@ -40,5 +41,8 @@ routes.get(
   '/deliveryman/:deliverymanId/delivered',
   DeliverymanOrderController.show
 );
+
+routes.post('/order/:id/end', OrderStatusController.store);
+routes.put('/order/:id/start', OrderStatusController.update);
 
 export default routes;
