@@ -58,7 +58,17 @@ class OrderController {
   }
 
   async delete(req, res) {
-    return res.json({ ok: true });
+    const { id } = req.params;
+
+    const order = await Order.findByPk(id);
+
+    order.canceledAt = new Date();
+
+    await order.save();
+
+    // TODO: Informar entregador por e-mail sobre o cancelamento
+
+    return res.json(order);
   }
 }
 
