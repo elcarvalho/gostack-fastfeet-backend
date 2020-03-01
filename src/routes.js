@@ -42,7 +42,7 @@ routes.get(
   DeliverymanOrderController.show
 );
 
-routes.post('/order/:id/end', OrderStatusController.store);
 routes.put('/order/:id/start', OrderStatusController.update);
+routes.post('/order/:id/end', OrderStatusController.store);
 
 export default routes;
