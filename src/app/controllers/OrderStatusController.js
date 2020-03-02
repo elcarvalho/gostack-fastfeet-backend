@@ -1,14 +1,10 @@
 import { startOfToday, getHours } from 'date-fns';
 import { Op } from 'sequelize';
 import Order from '../models/Order';
-import User from '../models/User';
+import File from '../models/File';
 
 class OrderStatusController {
   async store(req, res) {
-    // TODO: registrar data termino da entrega
-  }
-
-  async update(req, res) {
     const { id } = req.params;
 
     const order = await Order.findByPk(id);
@@ -64,6 +60,28 @@ class OrderStatusController {
       product,
       startDate,
     });
+  }
+
+  async update(req, res) {
+    const { id } = req.params;
+
+    const order = await Order.findByPk(id);
+
+    if (!order.startDate) {
+      return res.status(400).json({ error: 'Order not started yet!' });
+    }
+
+    if (req.file) {
+      const { originalname: name, filename: path } = req.file;
+      const file = await File.create({ name, path });
+      order.signatureId = file.id;
+    }
+
+    order.endDate = new Date();
+
+    const { endDate } = await order.save();
+
+    return res.json({ endDate });
   }
 }
 

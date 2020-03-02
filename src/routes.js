@@ -1,5 +1,8 @@
 import { Router } from 'express';
 
+import multer from 'multer';
+import multerConfig from './config/multer';
+
 import authMiddleware from './app/middlewares/auth';
 import adminMiddleware from './app/middlewares/admin';
 
@@ -11,6 +14,7 @@ import DeliverymanOrderController from './app/controllers/DeliverymanOrderContro
 import OrderStatusController from './app/controllers/OrderStatusController';
 
 const routes = new Router();
+const upload = multer(multerConfig);
 
 routes.post('/sessions', SessionController.store);
 
@@ -42,7 +46,11 @@ routes.get(
   DeliverymanOrderController.show
 );
 
-routes.put('/order/:id/start', OrderStatusController.update);
-routes.post('/order/:id/end', OrderStatusController.store);
+routes.post('/order/:id/start', OrderStatusController.store);
+routes.put(
+  '/order/:id/end',
+  upload.single('signature'),
+  OrderStatusController.update
+);
 
 export default routes;
