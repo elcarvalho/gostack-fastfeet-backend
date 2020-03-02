@@ -14,6 +14,8 @@ class Order extends Model {
       },
       { sequelize }
     );
+
+    return this;
   }
 }
 
