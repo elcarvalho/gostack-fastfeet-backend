@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import Order from '../models/Order';
+import Deliveryman from '../models/Deliveryman';
 
 class OrderController {
   async index(req, res) {
@@ -8,11 +9,17 @@ class OrderController {
     const orders = await Order.findAll({
       attributes: [
         'recipientId',
-        'deliverymanId',
         'product',
         'canceledAt',
         'startDate',
         'endDate',
+      ],
+      include: [
+        {
+          model: Deliveryman,
+          as: 'deliveryman',
+          attributes: ['name', 'email'],
+        },
       ],
       limit: 20,
       offset: (page - 1) * 20,
