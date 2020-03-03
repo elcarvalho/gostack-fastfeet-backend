@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 import Order from '../models/Order';
 import Deliveryman from '../models/Deliveryman';
+import Recipient from '../models/Recipient';
 
 class OrderController {
   async index(req, res) {
@@ -19,6 +20,10 @@ class OrderController {
           model: Deliveryman,
           as: 'deliveryman',
           attributes: ['name', 'email'],
+        },
+        {
+          model: Recipient,
+          as: 'recipient',
         },
       ],
       limit: 20,
