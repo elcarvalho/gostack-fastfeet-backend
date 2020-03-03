@@ -66,12 +66,6 @@ class OrderController {
 
     const { recipientId } = req.body;
 
-    const order = await Order.findOne({ where: { recipientId } });
-
-    if (order) {
-      return res.status(400).json({ error: 'The order was assigned already.' });
-    }
-
     const { deliverymanId, product } = await Order.create(req.body);
 
     const { name, email } = await Deliveryman.findByPk(deliverymanId);
