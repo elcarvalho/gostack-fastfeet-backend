@@ -1,8 +1,13 @@
 import * as Yup from 'yup';
+import { format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
+
 import Order from '../models/Order';
 import Deliveryman from '../models/Deliveryman';
 import Recipient from '../models/Recipient';
 import File from '../models/File';
+
+import Mail from '../../lib/Mail';
 
 class OrderController {
   async index(req, res) {
@@ -69,7 +74,17 @@ class OrderController {
 
     const { deliverymanId, product } = await Order.create(req.body);
 
-    // TODO: notificar entregador por e-mail
+    const { name, email } = await Deliveryman.findByPk(deliverymanId);
+
+    try {
+      Mail.sendMail({
+        to: `${name} <${email}>`,
+        subject: 'Nova encomenda aguardando retirada',
+        html: `<p>Cliente: ${name}</p><p>Produto: ${product}</p><p>Fastfeet co.</p>`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
     return res.json({ recipientId, deliverymanId, product });
   }
@@ -98,11 +113,34 @@ class OrderController {
 
     const order = await Order.findByPk(id);
 
+    if (order.canceledAt) {
+      return res.json({ error: 'The order already canceled.' });
+    }
+
     order.canceledAt = new Date();
 
     await order.save();
 
-    // TODO: Informar entregador por e-mail sobre o cancelamento
+    const { name, email } = await Deliveryman.findByPk(order.deliverymanId);
+
+    try {
+      Mail.sendMail({
+        to: `${name} <${email}>`,
+        subject: 'Encomenda cancelada',
+        html: `<p>Cliente: ${name}</p>
+              <p>Produto: ${order.product}</p>
+              <p>Data/hora: ${format(
+                order.canceledAt,
+                "'dia' dd 'de' MMMM', às' H:mm'h'",
+                {
+                  locale: pt,
+                }
+              )}</p>
+              <p>Fastfeet co.</p>`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
     return res.json(order);
   }
