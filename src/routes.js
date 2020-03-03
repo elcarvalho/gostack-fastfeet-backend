@@ -12,6 +12,7 @@ import DeliverymanController from './app/controllers/DeliverymanController';
 import OrderController from './app/controllers/OrderController';
 import DeliverymanOrderController from './app/controllers/DeliverymanOrderController';
 import OrderStatusController from './app/controllers/OrderStatusController';
+import DeliveryProblemController from './app/controllers/DeliveryProblemController';
 
 const routes = new Router();
 const upload = multer(multerConfig);
@@ -35,7 +36,11 @@ routes.delete(
 routes.get('/orders/', adminMiddleware, OrderController.index);
 routes.post('/orders', adminMiddleware, OrderController.store);
 routes.put('/orders/:id', adminMiddleware, OrderController.update);
-routes.delete('/orders/:id', adminMiddleware, OrderController.delete);
+routes.delete(
+  '/orders/:id/cancel-delivery',
+  adminMiddleware,
+  OrderController.delete
+);
 
 routes.get(
   '/deliveryman/:deliverymanId/orders',
@@ -52,5 +57,9 @@ routes.put(
   upload.single('signature'),
   OrderStatusController.update
 );
+
+routes.get('/deliveries', DeliveryProblemController.index);
+routes.get('/deliveries/:order_id/problems', DeliveryProblemController.show);
+routes.post('/deliveries/:order_id/problems', DeliveryProblemController.store);
 
 export default routes;
