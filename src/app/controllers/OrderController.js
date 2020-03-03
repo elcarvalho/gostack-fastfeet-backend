@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import Order from '../models/Order';
 import Deliveryman from '../models/Deliveryman';
 import Recipient from '../models/Recipient';
+import File from '../models/File';
 
 class OrderController {
   async index(req, res) {
@@ -24,6 +25,20 @@ class OrderController {
         {
           model: Recipient,
           as: 'recipient',
+          attributes: [
+            'name',
+            'street',
+            'number',
+            'complement',
+            'state',
+            'city',
+            'zip',
+          ],
+        },
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['path', 'url', 'name'],
         },
       ],
       limit: 20,

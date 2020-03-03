@@ -28,6 +28,11 @@ class Order extends Model {
       foreignKey: 'recipientId',
       as: 'recipient',
     });
+
+    this.belongsTo(models.File, {
+      foreignKey: 'signature_id',
+      as: 'signature',
+    });
   }
 }
 
