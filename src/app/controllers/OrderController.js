@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import pt from 'date-fns/locale/pt';
@@ -12,6 +13,10 @@ import Mail from '../../lib/Mail';
 class OrderController {
   async index(req, res) {
     const { page = 1 } = req.query;
+
+    const query = req.query.q
+      ? { name: { [Op.iLike]: `%${req.query.q}%` } }
+      : {};
 
     const orders = await Order.findAll({
       attributes: ['recipientId', 'canceledAt', 'startDate', 'endDate'],
@@ -33,6 +38,7 @@ class OrderController {
             'city',
             'zip',
           ],
+          where: query,
         },
         {
           model: File,
