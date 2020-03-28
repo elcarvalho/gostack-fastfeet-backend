@@ -14,13 +14,7 @@ class OrderController {
     const { page = 1 } = req.query;
 
     const orders = await Order.findAll({
-      attributes: [
-        'recipientId',
-        'product',
-        'canceledAt',
-        'startDate',
-        'endDate',
-      ],
+      attributes: ['recipientId', 'canceledAt', 'startDate', 'endDate'],
       include: [
         {
           model: Deliveryman,
@@ -57,7 +51,6 @@ class OrderController {
     const schema = Yup.object().shape({
       recipientId: Yup.number().required(),
       deliverymanId: Yup.number().required(),
-      product: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
