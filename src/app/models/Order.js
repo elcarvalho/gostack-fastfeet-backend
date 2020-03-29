@@ -10,6 +10,7 @@ class Order extends Model {
         canceledAt: Sequelize.DATE,
         startDate: Sequelize.DATE,
         endDate: Sequelize.DATE,
+        product: Sequelize.STRING,
       },
       { sequelize }
     );
@@ -25,7 +26,7 @@ class Order extends Model {
 
     this.belongsTo(models.Recipient, {
       foreignKey: 'recipientId',
-      as: 'product',
+      as: 'recipient',
     });
 
     this.belongsTo(models.File, {

@@ -12,7 +12,6 @@ module.exports = {
     });
   },
 
-  down: queryInterface => {
-    return queryInterface.removeConstraint('orders_signature_id_fkey');
-  },
+  down: queryInterface =>
+    queryInterface.removeConstraint('orders', 'orders_signature_id_fkey'),
 };

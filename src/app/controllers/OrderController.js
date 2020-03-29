@@ -15,11 +15,19 @@ class OrderController {
     const { page = 1 } = req.query;
 
     const query = req.query.q
-      ? { name: { [Op.iLike]: `%${req.query.q}%` } }
+      ? { product: { [Op.iLike]: `%${req.query.q}%` } }
       : {};
 
     const orders = await Order.findAll({
-      attributes: ['recipientId', 'canceledAt', 'startDate', 'endDate'],
+      attributes: [
+        'id',
+        'recipientId',
+        'product',
+        'canceledAt',
+        'startDate',
+        'endDate',
+      ],
+      where: query,
       include: [
         {
           model: Deliveryman,
@@ -28,7 +36,7 @@ class OrderController {
         },
         {
           model: Recipient,
-          as: 'product',
+          as: 'recipient',
           attributes: [
             'name',
             'street',
@@ -38,7 +46,6 @@ class OrderController {
             'city',
             'zip',
           ],
-          where: query,
         },
         {
           model: File,
@@ -57,6 +64,7 @@ class OrderController {
     const schema = Yup.object().shape({
       recipientId: Yup.number().required(),
       deliverymanId: Yup.number().required(),
+      product: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -66,28 +74,17 @@ class OrderController {
     try {
       const { recipientId } = req.body;
 
-      const { id } = await Order.create(req.body);
-
-      const { deliverymanId, product } = await Order.findOne({
-        where: { id },
-        include: [
-          {
-            model: Recipient,
-            as: 'product',
-            attributes: ['name'],
-          },
-        ],
-      });
+      const { deliverymanId, product } = await Order.create(req.body);
 
       const { name, email } = await Deliveryman.findByPk(deliverymanId);
 
       Mail.sendMail({
         to: `${name} <${email}>`,
         subject: 'Nova encomenda aguardando retirada',
-        html: `<p>Cliente: ${name}</p><p>Produto: ${product.name}</p><p>Fastfeet co.</p>`,
+        html: `<p>Cliente: ${name}</p><p>Produto: ${product}</p><p>Fastfeet co.</p>`,
       });
 
-      return res.json({ recipientId, deliverymanId, product: product.name });
+      return res.json({ recipientId, deliverymanId, product });
     } catch (error) {
       return res.status(500).json({ error: 'Create order fail.' });
     }
@@ -96,6 +93,7 @@ class OrderController {
   async update(req, res) {
     const schema = Yup.object().shape({
       deliverymanId: Yup.number(),
+      product: Yup.string(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -105,20 +103,11 @@ class OrderController {
     try {
       const { id } = req.params;
 
-      const order = await Order.findOne({
-        where: { id },
-        include: [
-          {
-            model: Recipient,
-            as: 'product',
-            attributes: ['name'],
-          },
-        ],
-      });
+      const order = await Order.findByPk(id);
 
       const { deliverymanId, product } = await order.update(req.body);
 
-      return res.json({ deliverymanId, product: product.name });
+      return res.json({ deliverymanId, product });
     } catch (error) {
       return res.status(500).json({ error: 'Update order fail.' });
     }
@@ -128,16 +117,7 @@ class OrderController {
     try {
       const { id } = req.params;
 
-      const order = await Order.findOne({
-        where: { id },
-        include: [
-          {
-            model: Recipient,
-            as: 'product',
-            attributes: ['name'],
-          },
-        ],
-      });
+      const order = await Order.findByPk(id);
 
       if (order.canceledAt) {
         return res.json({ error: 'The order already canceled.' });
@@ -153,7 +133,7 @@ class OrderController {
         to: `${name} <${email}>`,
         subject: 'Encomenda cancelada',
         html: `<p>Cliente: ${name}</p>
-              <p>Produto: ${order.product.name}</p>
+              <p>Produto: ${order.product}</p>
               <p>Data/hora: ${format(
                 order.canceledAt,
                 "'dia' dd 'de' MMMM', às' H:mm'h'",
