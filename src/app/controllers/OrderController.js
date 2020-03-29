@@ -28,7 +28,7 @@ class OrderController {
         },
         {
           model: Recipient,
-          as: 'recipient',
+          as: 'product',
           attributes: [
             'name',
             'street',
@@ -60,68 +60,100 @@ class OrderController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails.' });
+      return res.status(400).json({ error: 'Validation fail.' });
     }
 
-    const { recipientId } = req.body;
-
-    const { deliverymanId, product } = await Order.create(req.body);
-
-    const { name, email } = await Deliveryman.findByPk(deliverymanId);
-
     try {
+      const { recipientId } = req.body;
+
+      const { id } = await Order.create(req.body);
+
+      const { deliverymanId, product } = await Order.findOne({
+        where: { id },
+        include: [
+          {
+            model: Recipient,
+            as: 'product',
+            attributes: ['name'],
+          },
+        ],
+      });
+
+      const { name, email } = await Deliveryman.findByPk(deliverymanId);
+
       Mail.sendMail({
         to: `${name} <${email}>`,
         subject: 'Nova encomenda aguardando retirada',
-        html: `<p>Cliente: ${name}</p><p>Produto: ${product}</p><p>Fastfeet co.</p>`,
+        html: `<p>Cliente: ${name}</p><p>Produto: ${product.name}</p><p>Fastfeet co.</p>`,
       });
-    } catch (error) {
-      console.log(error);
-    }
 
-    return res.json({ recipientId, deliverymanId, product });
+      return res.json({ recipientId, deliverymanId, product: product.name });
+    } catch (error) {
+      return res.status(500).json({ error: 'Create order fail.' });
+    }
   }
 
   async update(req, res) {
     const schema = Yup.object().shape({
       deliverymanId: Yup.number(),
-      product: Yup.string(),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails.' });
+      return res.status(400).json({ error: 'Validation fail.' });
     }
 
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
 
-    const order = await Order.findByPk(id);
+      const order = await Order.findOne({
+        where: { id },
+        include: [
+          {
+            model: Recipient,
+            as: 'product',
+            attributes: ['name'],
+          },
+        ],
+      });
 
-    const { deliverymanId, product } = await order.update(req.body);
+      const { deliverymanId, product } = await order.update(req.body);
 
-    return res.json({ deliverymanId, product });
+      return res.json({ deliverymanId, product: product.name });
+    } catch (error) {
+      return res.status(500).json({ error: 'Update order fail.' });
+    }
   }
 
   async delete(req, res) {
-    const { id } = req.params;
-
-    const order = await Order.findByPk(id);
-
-    if (order.canceledAt) {
-      return res.json({ error: 'The order already canceled.' });
-    }
-
-    order.canceledAt = new Date();
-
-    await order.save();
-
-    const { name, email } = await Deliveryman.findByPk(order.deliverymanId);
-
     try {
+      const { id } = req.params;
+
+      const order = await Order.findOne({
+        where: { id },
+        include: [
+          {
+            model: Recipient,
+            as: 'product',
+            attributes: ['name'],
+          },
+        ],
+      });
+
+      if (order.canceledAt) {
+        return res.json({ error: 'The order already canceled.' });
+      }
+
+      order.canceledAt = new Date();
+
+      await order.save();
+
+      const { name, email } = await Deliveryman.findByPk(order.deliverymanId);
+
       Mail.sendMail({
         to: `${name} <${email}>`,
         subject: 'Encomenda cancelada',
         html: `<p>Cliente: ${name}</p>
-              <p>Produto: ${order.product}</p>
+              <p>Produto: ${order.product.name}</p>
               <p>Data/hora: ${format(
                 order.canceledAt,
                 "'dia' dd 'de' MMMM', às' H:mm'h'",
@@ -131,11 +163,11 @@ class OrderController {
               )}</p>
               <p>Fastfeet co.</p>`,
       });
-    } catch (error) {
-      console.log(error);
-    }
 
-    return res.json(order);
+      return res.json(order);
+    } catch (error) {
+      return res.status(500).json({ error: 'Cancelation fail.' });
+    }
   }
 }
 
