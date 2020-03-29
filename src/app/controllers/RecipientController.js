@@ -1,7 +1,38 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 import Recipient from '../models/Recipient';
 
 class RecipientController {
+  async index(req, res) {
+    try {
+      const { page = 1 } = req.query;
+
+      const query = req.query.q
+        ? { name: { [Op.iLike]: `%${req.query.q}%` } }
+        : {};
+
+      const recipients = await Recipient.findAll({
+        attributes: [
+          'id',
+          'name',
+          'street',
+          'number',
+          'complement',
+          'state',
+          'city',
+          'zip',
+        ],
+        where: query,
+        limit: 20,
+        offset: (page - 1) * 20,
+      });
+
+      return res.json(recipients);
+    } catch (error) {
+      return res.status(500).json({ error: 'List recipients fail.' });
+    }
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
