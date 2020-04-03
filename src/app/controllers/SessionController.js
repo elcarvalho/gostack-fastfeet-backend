@@ -18,26 +18,30 @@ class SessionController {
       return res.status(400).json({ error: 'Validation fails' });
     }
 
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    const user = await User.findOne({ where: { email } });
+      const user = await User.findOne({ where: { email } });
 
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      if (!(await user.checkPassword(password))) {
+        return res.status(401).json({ error: 'Password doesn`t match' });
+      }
+
+      const { id, name, isAdmin } = user;
+
+      return res.json({
+        user: { id, name, email },
+        token: jwt.sign({ id, isAdmin }, authConfig.secret, {
+          expiresIn: authConfig.expiresIn,
+        }),
+      });
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal server error.' });
     }
-
-    if (!(await user.checkPassword(password))) {
-      return res.status(401).json({ error: 'Password doesn`t match' });
-    }
-
-    const { id, name, isAdmin } = user;
-
-    return res.json({
-      user: { id, name, email },
-      token: jwt.sign({ id, isAdmin }, authConfig.secret, {
-        expiresIn: authConfig.expiresIn,
-      }),
-    });
   }
 }
 
