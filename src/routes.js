@@ -59,7 +59,7 @@ routes.put(
   OrderStatusController.update
 );
 
-routes.get('/deliveries', DeliveryProblemController.index);
+routes.get('/deliveries/problems', DeliveryProblemController.index);
 routes.get('/deliveries/:order_id/problems', DeliveryProblemController.show);
 routes.post('/deliveries/:order_id/problems', DeliveryProblemController.store);
 

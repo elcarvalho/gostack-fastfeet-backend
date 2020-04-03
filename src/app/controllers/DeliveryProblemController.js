@@ -8,7 +8,7 @@ class DeliveryProblemController {
     const { page = 1 } = req.query;
 
     const problems = await DeliveryProblem.findAll({
-      attributes: ['description'],
+      attributes: ['id', 'description'],
       include: [
         {
           model: Order,
