@@ -24,7 +24,7 @@ class DeliveryController {
         {
           model: File,
           as: 'avatar',
-          attributes: ['path', 'url', 'name'],
+          attributes: ['id', 'path', 'url'],
         },
       ],
       limit: 20,
