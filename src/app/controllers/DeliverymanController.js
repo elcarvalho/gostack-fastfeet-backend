@@ -6,9 +6,15 @@ class DeliveryController {
   async index(req, res) {
     const { page = 1 } = req.query;
 
-    const query = req.query.q
-      ? { name: { [Op.iLike]: `%${req.query.q}%` } }
-      : {};
+    const query = {};
+
+    if (req.query.q) {
+      query.name = { [Op.iLike]: `%${req.query.q}%` };
+    }
+
+    if (req.params.id) {
+      query.id = req.params.id;
+    }
 
     const deliverymen = await Deliveryman.findAll({
       where: query,
