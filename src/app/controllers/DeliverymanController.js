@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import * as Yup from 'yup';
 import Deliveryman from '../models/Deliveryman';
+import File from '../models/File';
 
 class DeliveryController {
   async index(req, res) {
@@ -19,6 +20,13 @@ class DeliveryController {
     const deliverymen = await Deliveryman.findAll({
       where: query,
       attributes: ['id', 'name', 'email', 'avatar_id'],
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['path', 'url', 'name'],
+        },
+      ],
       limit: 20,
       offset: (page - 1) * 20,
     });
