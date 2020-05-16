@@ -31,6 +31,7 @@ class RecipientController {
         where: query,
         limit: 20,
         offset: (page - 1) * 20,
+        order: [['id', 'ASC']],
       });
 
       return res.json(recipients);

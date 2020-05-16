@@ -22,6 +22,7 @@ class DeliverymanOrderController {
       ],
       limit: 20,
       offset: (page - 1) * 20,
+      order: [['id', 'ASC']],
     });
 
     return res.json(orders);
